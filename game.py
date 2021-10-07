@@ -258,7 +258,7 @@ class Board():
             #print("Doing my 2nd move!")
             if not self.np:
                 printBoard(self)        
-            
+            self.turn += 1 # count 2nd turn extra
             self.oneMove()
             return # important
         elif (mineOnBoard == 0) and (self.noGapsInGoal(self.currentPl())) and (attempt < 3):
@@ -266,7 +266,9 @@ class Board():
             
             if not self.np:
                 printBoard(self)
-            self.oneMove(attempt=attempt+1)
+            # these are not counted extra because there is no actual move happening
+            # until a 6 is rolled
+            self.oneMove(attempt=attempt+1) 
             return
         else: # if no 6
             if self.iNotOnStart(self.currentPl()):
