@@ -28,7 +28,7 @@ if __name__ == "__main__":
         board.nextPl()
         
         if len(board.winningOrder) == nPl - 1:
-            print("Winning order: " + " ".join([board.playerColours[i-1].upper() for i in board.winningOrder]))
+            print("Finishing order: " + " ".join([board.playerColours[i-1].upper() for i in board.winningOrder]))
             print(f"Turn {board.turn}")
             #printBoard(board)
             break
