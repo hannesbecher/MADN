@@ -18,33 +18,11 @@ def makeGhostPiece():
     """These are located on empty fields."""
     return Piece(0, 0, "white")
 
-class Player:
-    def __init__(self, id, colour, name="", ghost=False):
-        self.id = id
-        if ghost:
-           self.colour = "white"
-        else:
-           self.colour = colour
-        self.name = name
-        self.finishPos = 0
-        self.pieces = []
-        self.isGhost = ghost
 
-                
-    def print(self):
-        print("Player ID: %s" % self.id)
-        print("     Name: %s" % self.name)
-        print("   Colour: %s" % self.colour)
-
-def setUpPlayer(board, playerId, colour, name="", ghost=False):
-    pl = Player(playerId, colour, name=name, ghost=ghost)
-    initialisePlayerPieces(pl, board)
-    return pl
-
-def initialisePlayerPieces(player, board):
-    if player.id in [1, 2, 3, 4]:
+def initialisePlayerPieces(playerId, board):
+    if playerId in [1, 2, 3, 4]:
         for i in [1, 2, 3, 4]:
-            board.fields["s%s%d" % (player.id, i)]["piece"] = Piece(player.id, i, player.colour)
+            board.fields["s%s%d" % (playerId, i)]["piece"] = Piece(playerId, i, board.playerColours[playerId-1])
     else: raise ValueError("playerId has to be between 1 and 4.")
 
 
@@ -215,7 +193,7 @@ class Board():
         roll = 1
         d = rollDie()
         if not self.np:
-            sleep(0.01)
+            sleep(0.02)
             clearScreen()  
         #print("###################")
         #d = 1
