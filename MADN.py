@@ -9,19 +9,14 @@ from time import sleep, time
 if __name__ == "__main__":
 
     t0 = time()
-    nPl = 4
+    nPl = 4 # number of players
     
-    #np = True
-    np = False
-    board = Board(nPl, np)
-    [setUpPlayer(board, i+1, board.playerColours[i]) for i in range(nPl)]
+    #noPrint = True
+    noPrint = False
+    board = Board(nPl, noPrint)
+    [initialisePlayerPieces(i+1, board) for i in range(nPl)]
+    
 
-    
-    #board.movePiece("s14", "f00")
-    #board.movePiece("s24", "f20")
-    #board.movePiece("s34", "f10")
-    #board.movePiece("s44", "f30")
-    #printBoard(board)
     while True:
         board.turn += 1
         board.oneMove()
