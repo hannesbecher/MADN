@@ -46,12 +46,18 @@ class Board():
                 self.fields["g%d%d" % (i+1,j)]={"piece":makeGhostPiece(), "fieldName":"goal field %d of player %d" % (j,i+1)}
         
         self.np = noPrint
-        self.turn = 1
+        self.turn = 0
         self.plOrder = [1,2,3,4][:nPl]
         
         self.playerColours = ["red", "green", "cyan", "yellow"][:nPl]
-        self.winningOrder = []
-        
+        self.events = {"finishingOrder":[], 
+                       "finishingTurns":[], 
+                       "kickingTurns":[], 
+                       "kickingWho":[],
+                       "kickingWhom":[]
+                       }
+            
+
     def currentPl(self):
         return self.plOrder[0]
         
@@ -103,7 +109,10 @@ class Board():
         return not self.isPlayerOnField(pf2bf(0, playerId), playerId)
 
     def kickOutFromBf(self, bf):
-        # add recording code here
+        self.events["kickingTurns"].append(self.turn) 
+        self.events["kickingWho"].append(self.currentPl())
+        self.events["kickingWhom"].append(self.fields[bf]["piece"].player)
+        
         self.movePiece((bf,
                        self.kickBackToWhere(self.fields[bf]["piece"].player))
                        )
@@ -129,11 +138,10 @@ class Board():
         return len(self.playersPieces(pl, "g")) == 4
 
     def finishProc(self, pl):
-        self.winningOrder.append(pl)
-        # add recording code here
+        self.events["finishingOrder"].append(pl)
+        self.events["finishingTurns"].append(self.turn)
         if not self.np:
-            #print("Player %d finishes with position %d" % (self.currentPl(), len(self.winningOrder)))
-            print("Player %s finishes with position %d" % (self.playerColours[self.currentPl()-1].upper(), len(self.winningOrder)))
+            print("Player %s finishes with position %d" % (self.playerColours[self.currentPl()-1].upper(), len(self.events["finishingOrder"])))
             sleep(1)
 
         
@@ -174,7 +182,7 @@ class Board():
 
 
     def oneMove(self, attempt=1):
-        if self.currentPl() in self.winningOrder:
+        if self.currentPl() in self.events["finishingOrder"]:
             
             #printBoard(self)
             return
