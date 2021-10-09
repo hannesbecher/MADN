@@ -7,9 +7,9 @@ def bf2pf(f, pl):
         if pl == 1:
             return fInt
         elif pl == 2:
-            offs = 20
-        elif pl == 3:
             offs = 30
+        elif pl == 3:
+            offs = 20
         elif pl == 4:
             offs = 10
         else: raise ValueError("pl has to be between 1 and 4")
@@ -28,9 +28,9 @@ def pf2bf(pf, pl):
     if pl == 1:
         offs = 0
     elif pl == 2:
-        offs = 20
-    elif pl == 3:
         offs = 10
+    elif pl == 3:
+        offs = 20
     elif pl == 4:
         offs = 30
     else: raise ValueError("pl has to be between 1 and 4")
