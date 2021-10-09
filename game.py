@@ -28,7 +28,7 @@ def initialisePlayerPieces(playerId, board):
 
 class Board():
     
-    def __init__(self, nPl=4, noPrint=False):
+    def __init__(self, nPl=4, noPrint=False, tak=["k", "k", "k", "k"]):
         self.fields = {("f%02d" % i):{"nextField":("f%02d" % (i+1)),
                                       "fieldName":"board field %02d" % i,
                                       "piece":makeGhostPiece()
@@ -46,6 +46,7 @@ class Board():
                 self.fields["g%d%d" % (i+1,j)]={"piece":makeGhostPiece(), "fieldName":"goal field %d of player %d" % (j,i+1)}
         
         self.np = noPrint
+        self.tactics = tak
         self.turn = 0
         self.plOrder = [1,2,3,4][:nPl]
         
@@ -224,11 +225,11 @@ class Board():
                 else:
                     #print("I'm on my start. Try to clear!")
 
-                    self.moveAndKick(self.moveWhich(allMyPoss, d))
+                    self.moveAndKick(self.moveWhich(allMyPoss, d, self.tactics[self.currentPl()-1]))
 
             else: # if none left to move out
 
-                self.moveAndKick(self.moveWhich(allMyPoss, d))
+                self.moveAndKick(self.moveWhich(allMyPoss, d, self.tactics[self.currentPl()-1]))
 
             #print("Doing my 2nd move!")
             if not self.np:
@@ -247,11 +248,11 @@ class Board():
         else: # if no 6 and there are some on the board or gaps in the goal
             if self.iNotOnStart(self.currentPl()):
 
-                self.moveAndKick(self.moveWhich(allMyPoss, d))
+                self.moveAndKick(self.moveWhich(allMyPoss, d, self.tactics[self.currentPl()-1]))
 
 
             else: # player self on own start
-                self.moveAndKick(self.moveWhich(allMyPoss, d))
+                self.moveAndKick(self.moveWhich(allMyPoss, d, self.tactics[self.currentPl()-1]))
 
         if not self.np:
             printBoard(self)
