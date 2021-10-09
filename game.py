@@ -76,8 +76,9 @@ class Board():
                 pos.append(i)
         return pos
 
-    def movePiece(self, fkey1, fkey2):
-            self.fields[fkey2]["piece"], self.fields[fkey1]["piece"] = self.fields[fkey1]["piece"], self.fields[fkey2]["piece"]
+    def movePiece(self, frto):
+        fkey1, fkey2 = frto
+        self.fields[fkey2]["piece"], self.fields[fkey1]["piece"] = self.fields[fkey1]["piece"], self.fields[fkey2]["piece"]
 
     def kickBackToWhere(self, player):
         """Which of `player`'s starting (board) fields to kick back to"""
@@ -100,13 +101,19 @@ class Board():
     
     def iNotOnStart(self, playerId):
         return not self.isPlayerOnField(pf2bf(0, playerId), playerId)
-    
-    def kickOutFromPf(self, pf):
-        bf = pf2bf(pf, self.currentPl())
+
+    def kickOutFromBf(self, bf):
         # add recording code here
-        self.movePiece(bf,
-                       self.kickBackToWhere(self.fields[bf]["piece"].player)
+        self.movePiece((bf,
+                       self.kickBackToWhere(self.fields[bf]["piece"].player))
                        )
+
+    def moveAndKick(self, frto):
+        if frto[0] != -1:
+            if self.isOtherPlayerOnField(frto[1], self.currentPl()):
+                self.kickOutFromBf(frto[1])
+            self.movePiece(frto)
+
     def noGapsInGoal(self, pl):
         myGoalPoss = self.playersPieces(self.currentPl(), "g")
         if len(myGoalPoss) == 0: return True
@@ -129,46 +136,6 @@ class Board():
             print("Player %s finishes with position %d" % (self.playerColours[self.currentPl()-1].upper(), len(self.winningOrder)))
             sleep(1)
 
-    # def movingProcedure(self, startPfList, steps, situation="std"):
-        
-    #     if len(startPfList) == 0: # if no one movable in game
-    #         if situation == "goal": # meaning we've done this already
-    #             #print("All goalies tried w/o sucess. Passing.")
-    #             return
-    #         #any in goal to move?
-    #         #print("None in game, check goal!")
-    #         myGoalPoss = self.playersPieces(self.currentPl(), "g")
-    #         #print(myGoalPoss)
-    #         if len(myGoalPoss) > 0:
-    #             myGoalPlPoss = bfl2pfl(myGoalPoss, self.currentPl())
-    #             self.movingProcedure(myGoalPlPoss, steps, "goal") 
-
-    #         else: # if none in goal pass this turn
-    #             #printBoard(self)
-    #             return
-    #     else:
-    #         chosenOne = startPfList.pop() # this is a player field number
-    #         #print("Chose to move from %s - pf %s" % (pf2bf(chosenOne, self.currentPl()), chosenOne))
-    #         targ = chosenOne + steps
-    #         if targ < 44:
-    #             if self.isPlayerOnField(pf2bf(targ, self.currentPl()),
-    #                                     self.currentPl()
-    #                                     ):
-    #                 #print("I'm on that field. Trying next piece...")
-    #                 self.movingProcedure(startPfList, steps, situation) # trying remaining
-    #                 #return #not needed?
-    #             if self.isOtherPlayerOnField(pf2bf(targ, self.currentPl()), self.currentPl()):
-    #                 #print("Kicking out...")
-    #                 self.kickOutFromPf(targ)
-    #             self.movePiece(pf2bf(chosenOne, self.currentPl()),
-    #                            pf2bf(targ, self.currentPl())
-    #                            )
-    #             #printBoard(self)
-    #             #return #not needed?
-    #         else:
-    #             #print("No fields left to go to. Trying next piece...")
-    #             self.movingProcedure(startPfList, steps, situation) # trying remaining
-    #             #return #not needed?
         
     def moveWhich(self, bfl, d):
         """Take a list of board fields where the current player's pieces are and the number rolled.
@@ -211,26 +178,21 @@ class Board():
             
             #printBoard(self)
             return
-        
+        if attempt == 1:
+            self.turn += 1
         roll = 1
         d = rollDie()
         if not self.np:
             sleep(0.01)
             clearScreen()  
             #print("###################")
-        #d = 1
-        #print("Rolled a %d" % d, end="")
+
             print("Turn %d - %s" % (self.turn, self.playerColours[self.currentPl()-1].upper()))
             print("Rolled a %d" % d)
         # my board pos
         myPositions = self.playersPieces(self.currentPl(), "f")
         allMyPoss = self.playersPieces(self.currentPl())
-        
         mineOnBoard = len(myPositions)
-
-        #my pl pos
-        myPlPos = bfl2pfl(myPositions, self.currentPl())
-        myPlPos.sort()
 
         if d == 6:
             #print("6!")
@@ -242,34 +204,26 @@ class Board():
                     # if other player on start, kick out
                     if self.isOtherPlayerOnField(pf2bf(0, self.currentPl()), self.currentPl()):
                         #print("***There's somebody on my start, KICK!***")
-                        self.kickOutFromPf(0)
+                        self.kickOutFromBf(pf2bf(0, self.currentPl()))
 
                     # move out piece
                     #print("Moving out!")
-                    self.movePiece(self.startFromWhere(self.currentPl()),
-                                   pf2bf(0, self.currentPl())
+                    self.movePiece((self.startFromWhere(self.currentPl()),
+                                   pf2bf(0, self.currentPl()))
                                    )
                 else:
                     #print("I'm on my start. Try to clear!")
-                    # moving procedure with inverted order
-                    #self.movingProcedure(myPlPos[::-1], d, "std")
-                    fr, to = self.moveWhich(allMyPoss, d)
-                    if fr != -1:
-                        if self.isOtherPlayerOnField(to, self.currentPl()):
-                            self.kickOutFromPf(bf2pf(to, self.currentPl()))
-                        self.movePiece(fr, to)
+
+                    self.moveAndKick(self.moveWhich(allMyPoss, d))
 
             else: # if none left to move out
-                #self.movingProcedure(myPlPos, d, "std")
-                fr, to = self.moveWhich(allMyPoss, d)
-                if fr != -1:
-                    if self.isOtherPlayerOnField(to, self.currentPl()):
-                        self.kickOutFromPf(bf2pf(to, self.currentPl()))
-                    self.movePiece(fr, to)
+
+                self.moveAndKick(self.moveWhich(allMyPoss, d))
+
             #print("Doing my 2nd move!")
             if not self.np:
                 printBoard(self)        
-            self.turn += 1 # count 2nd turn extra
+
             self.oneMove()
             return # important
         elif (mineOnBoard == 0) and (self.noGapsInGoal(self.currentPl())) and (attempt < 3):
@@ -277,30 +231,18 @@ class Board():
             
             if not self.np:
                 printBoard(self)
-            # these are not counted extra because there is no actual move happening
-            # until a 6 is rolled
+
             self.oneMove(attempt=attempt+1) 
             return
         else: # if no 6 and there are some on the board or gaps in the goal
             if self.iNotOnStart(self.currentPl()):
-                #self.movingProcedure(myPlPos, d, "std")
-                fr, to = self.moveWhich(allMyPoss, d)
-                if fr != -1:
-                    if self.isOtherPlayerOnField(to, self.currentPl()):
-                        self.kickOutFromPf(bf2pf(to, self.currentPl()))
-                    self.movePiece(fr, to)
+
+                self.moveAndKick(self.moveWhich(allMyPoss, d))
+
 
             else: # player self on own start
-                #self.movingProcedure(myPlPos[::-1], d, "std")
-                fr, to = self.moveWhich(allMyPoss, d)
-                if fr != -1:
-                    if self.isOtherPlayerOnField(to, self.currentPl()):
-                        self.kickOutFromPf(bf2pf(to, self.currentPl()))
-                    self.movePiece(fr, to)
-        #clearScreen()
+                self.moveAndKick(self.moveWhich(allMyPoss, d))
+
         if not self.np:
             printBoard(self)
         if self.hasPlFinished(self.currentPl()): self.finishProc(self.currentPl())
-
-
-        
