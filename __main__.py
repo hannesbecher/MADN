@@ -1,6 +1,6 @@
 #The game
 
-import __main__ 
+
 from .game import *
 from .utils import *
 from .plotting import * 

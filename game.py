@@ -1,7 +1,7 @@
 from random import randint
-from ..utils import *
+from .utils import *
 from time import sleep
-from ..plotting import * 
+from .plotting import * 
 
 def rollDie():
     return randint(1,6)
