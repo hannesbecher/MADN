@@ -1,9 +1,9 @@
 #The game
 
 
-from game import *
-from utils import *
-from plotting import * 
+from .game import *
+from .utils import *
+from .plotting import * 
 from time import sleep, time
 
 
