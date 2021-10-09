@@ -145,7 +145,7 @@ class Board():
             sleep(1)
 
         
-    def moveWhich(self, bfl, d):
+    def moveWhich(self, bfl, d, tak="k"):
         """Take a list of board fields where the current player's pieces are and the number rolled.
         Returns which board fields to move from and to."""
         nonStartBFL = [i for i in bfl if not i.startswith("s")]
@@ -158,8 +158,10 @@ class Board():
         iOnTarg = [(not self.isPlayerOnField(pf2bf(i, self.currentPl()), self.currentPl())) * 1  if i < 44 else 0 for i in targs]
         #print(iOnTarg)
         # 0 if not, 4 if yes, 0 if beyond goal
-        otherOnTarg = [self.isOtherPlayerOnField(pf2bf(i, self.currentPl()), self.currentPl()) * 4  if i < 44 else 0 for i in targs]
-        #otherOnTarg = [1 for _ in targs] # to turn off Schlagzwang
+        if tak == "k": # if tactic is to kick out
+            otherOnTarg = [self.isOtherPlayerOnField(pf2bf(i, self.currentPl()), self.currentPl()) * 4  if i < 44 else 0 for i in targs]
+        else:
+            otherOnTarg = [1 for _ in targs] # to turn off Schlagzwang
         
         onStartField = [(i == 0) * 8 for i in nonStartPFL] # 0 or 8
 
