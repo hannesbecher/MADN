@@ -20,3 +20,6 @@ One can specify a player's tactic with `tak`, which is a list with values corres
 ```
 >>> MADN.oneGame(nPl=4, noPrint=False, tak=["k", "k", "s", "s"])
 ```
+
+## Analysing the results
+There is a Juila repo called [analyseMADN](https://github.com/hannesbecher/analyseMADN).
