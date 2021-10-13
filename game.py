@@ -55,7 +55,9 @@ class Board():
                        "finishingTurns":[], 
                        "kickingTurns":[], 
                        "kickingWho":[],
-                       "kickingWhom":[]
+                       "whoField":[], # field were the kick happens in pf notation for who
+                       "kickingWhom":[],
+                       "whomField":[] # field were the kick happens in pf notation for whom
                        }
             
 
@@ -112,7 +114,9 @@ class Board():
     def kickOutFromBf(self, bf):
         self.events["kickingTurns"].append(self.turn) 
         self.events["kickingWho"].append(self.currentPl())
+        self.events["whoField"].append(bf2pf(bf, self.currentPl()))
         self.events["kickingWhom"].append(self.fields[bf]["piece"].player)
+        self.events["whomField"].append(bf2pf(bf, self.fields[bf]["piece"].player))
         
         self.movePiece((bf,
                        self.kickBackToWhere(self.fields[bf]["piece"].player))

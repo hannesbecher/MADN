@@ -4,11 +4,14 @@ from .game import *
 from .utils import *
 from .plotting import * 
 from time import sleep, time
+import random
 
 
-def oneGame(nPl=4, noPrint=True, tak=["k", "k", "k", "k"]):
+def oneGame(nPl=4, noPrint=True, tak=["k", "k", "k", "k"], seed=None):
     t0 = time()
     board = Board(nPl, noPrint, tak)
+    
+    if seed != None: random.seed(seed)
     
     [initialisePlayerPieces(i+1, board) for i in range(nPl)]
     
