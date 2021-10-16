@@ -180,5 +180,5 @@ def printBoard(board):
     pg(board.fields["s33"]["piece"].colour)
     pg(board.fields["s34"]["piece"].colour)
     nl()
-    nl()
-    nl()
+    #nl()
+    #nl()

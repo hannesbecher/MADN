@@ -1,6 +1,15 @@
 # MADN
 Mensch ärgere dich nicht
 
+## Branch depenencies
+Tested on Ubuntu Linux. Did not seem to work on MacOS.
+* numpy
+* opencv
+* pyautogui
+* scrot (`sudo apt-get install scrot`)
+Dependencies (except scrot?) can be installed via `conda create -n screenShots numpy opencv pyautogui -c conda-forge
+`.
+
 ## Run from command line
 From parent directory: `python3 -m MADN`
 

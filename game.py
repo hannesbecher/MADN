@@ -2,6 +2,9 @@ from random import randint
 from .utils import *
 from time import sleep
 from .plotting import * 
+import numpy as np
+import cv2
+import pyautogui
 
 def rollDie():
     return randint(1,6)
@@ -60,6 +63,11 @@ class Board():
                        "whomField":[] # field were the kick happens in pf notation for whom
                        }
             
+    def screenShot(self):
+        image = pyautogui.screenshot()
+        image = cv2.cvtColor(np.array(image),
+                     cv2.COLOR_RGB2BGR)
+        cv2.imwrite("image%05d.png" % self.turn, image)
 
     def currentPl(self):
         return self.plOrder[0]
@@ -198,7 +206,8 @@ class Board():
         roll = 1
         d = rollDie()
         if not self.np:
-            sleep(0.01)
+            #sleep(0.01)
+            self.screenShot()
             clearScreen()  
             #print("###################")
 
