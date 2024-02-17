@@ -20,6 +20,9 @@ def bf2pf(f, pl):
 
 
 def bfl2pfl(bfl, pl):
+    """
+    Board field list to player field list
+    """
     return [bf2pf(i, pl) for i in bfl]
 
 def pf2bf(pf, pl):
@@ -41,8 +44,12 @@ def pf2bf(pf, pl):
         #print("Converting goal field!")
         return "g%d%d" % (pl, pf - 40)
     else: raise ValueError("pf has to be < 45")
-    
+   
+# not used?
 def pfl2bfl(pfl, pl):
+    """
+    Player field list to board field list
+    """
     return [pf2bf(i, pl) for i in pfl]
 
 

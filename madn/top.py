@@ -1,8 +1,10 @@
 
 
-from .game import *
-from .utils import *
-from .plotting import * 
+#from .game import *
+from madn.game import Board, initialisePlayerPieces
+#import madn.game
+#from .utils import *
+#from .plotting import * 
 from time import sleep, time
 import random
 
@@ -15,6 +17,7 @@ def oneGame(nPl=4, noPrint=True, tak=["k", "k", "k", "k"], seed=None):
     
     [initialisePlayerPieces(i+1, board) for i in range(nPl)]
     
+    # The game main loop
     while True:
         board.oneMove()
         board.nextPl()
@@ -22,7 +25,8 @@ def oneGame(nPl=4, noPrint=True, tak=["k", "k", "k", "k"], seed=None):
         if len(board.events["finishingOrder"]) == nPl - 1:
             break
         #if board.turn == 20: break
-
+    
+    # Finishing off
     if noPrint == False:
         print("Game over.")
         print("%.3f s." % (time() - t0))

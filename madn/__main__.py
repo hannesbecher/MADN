@@ -1,6 +1,6 @@
 #The game
 
-from .MADN import oneGame
+from madn.top import oneGame
 if __name__ == "__main__":
 
     oneGame(noPrint=False, nPl=4)

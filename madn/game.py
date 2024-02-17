@@ -1,12 +1,22 @@
 from random import randint
-from .utils import *
+
+from madn.utils import bf2pf, pf2bf, bfl2pfl
 from time import sleep
-from .plotting import * 
+from madn.plotting import clearScreen, printBoard
 
 def rollDie():
     return randint(1,6)
 
 class Piece:
+    """
+    A class to represent pieces (including ghost pieces on empty fields)
+    
+    Keyword args:
+    playerId -- an integer
+    playerPieceId -- an integer
+    colour -- string
+    bgcol -- background colour?, a string (default: "grey"
+    """
     def __init__(self, playerId, playerPieceId, colour, bgcol="grey"):
         self.player = playerId
         self.ppid = playerPieceId
@@ -20,6 +30,9 @@ def makeGhostPiece():
 
 
 def initialisePlayerPieces(playerId, board):
+    """
+    Used in oneGame
+    """
     if playerId in [1, 2, 3, 4]:
         for i in [1, 2, 3, 4]:
             board.fields["s%s%d" % (playerId, i)]["piece"] = Piece(playerId, i, board.playerColours[playerId-1])
@@ -29,6 +42,7 @@ def initialisePlayerPieces(playerId, board):
 class Board():
     
     def __init__(self, nPl=4, noPrint=False, tak=["k", "k", "k", "k"]):
+        #
         self.fields = {("f%02d" % i):{"nextField":("f%02d" % (i+1)),
                                       "fieldName":"board field %02d" % i,
                                       "piece":makeGhostPiece()
@@ -50,7 +64,9 @@ class Board():
         self.turn = 0
         self.plOrder = [1,2,3,4][:nPl]
         
+        # these colour must match vals in plotting.py
         self.playerColours = ["red", "green", "cyan", "yellow"][:nPl]
+        #self.playerColours = ["reds", "green", "cyan", "yellow"][:nPl] # will fail
         self.events = {"finishingOrder":[], 
                        "finishingTurns":[], 
                        "kickingTurns":[], 
