@@ -15,7 +15,7 @@ class Piece:
     playerId -- an integer
     playerPieceId -- an integer
     colour -- string
-    bgcol -- background colour?, a string (default: "grey"
+    bgcol -- background colour?, a string (default: "grey")
     """
     def __init__(self, playerId, playerPieceId, colour, bgcol="grey"):
         self.player = playerId
@@ -25,41 +25,50 @@ class Piece:
         self.bgcol = bgcol
 
 def makeGhostPiece():
-    """These are located on empty fields."""
+    """Returns white a piece object eloning to no player. These are located on empty fields."""
     return Piece(0, 0, "white")
 
 
-def initialisePlayerPieces(playerId, board):
+def initialisePlayerPieces(board, playerId):
     """
-    Used in oneGame
+    Places a player's pieces in starting position by mutating `board`. This is run once for
+    each player. Used in oneGame().
     """
+    assert isinstance(playerId, int), "Argument `playerId` must be `int`."
+    assert isinstance(board, Board), "Argument `board ` must be `Board`."
     if playerId in [1, 2, 3, 4]:
         for i in [1, 2, 3, 4]:
             board.fields["s%s%d" % (playerId, i)]["piece"] = Piece(playerId, i, board.playerColours[playerId-1])
-    else: raise ValueError("playerId has to be between 1 and 4.")
+    else: raise ValueError("playerId must be between 1 and 4.")
 
 
 class Board():
-    
+    """
+    The main class of the game.
+    """    
     def __init__(self, nPl=4, noPrint=False, tak=["k", "k", "k", "k"]):
-        #
+        # set up fields
+        # 40 ordinary fileds
         self.fields = {("f%02d" % i):{"nextField":("f%02d" % (i+1)),
                                       "fieldName":"board field %02d" % i,
                                       "piece":makeGhostPiece()
                                       } for i in range(40)}
         #self.fields["f40"]={"nextField":"f01", "piece":makeGhostPiece(), "fieldName":"field 40"}
     
-        #starting fields
+        # 16 starting fields
         for i in range(4):
             for j in range(4):
                 self.fields["s%d%d" % (i+1,j+1)]={"piece":makeGhostPiece(), "fieldName":"starting field %d of player %d" % (j+1,i+1)}
        
-        #goal fields
+        # 16 goal fields
         for i in range(4):
             for j in range(4):
                 self.fields["g%d%d" % (i+1,j)]={"piece":makeGhostPiece(), "fieldName":"goal field %d of player %d" % (j,i+1)}
         
+        # whether or not to print board state on oneTurn() 
         self.np = noPrint
+        
+        
         self.tactics = tak
         self.turn = 0
         self.plOrder = [1,2,3,4][:nPl]
@@ -67,6 +76,8 @@ class Board():
         # these colour must match vals in plotting.py
         self.playerColours = ["red", "green", "cyan", "yellow"][:nPl]
         #self.playerColours = ["reds", "green", "cyan", "yellow"][:nPl] # will fail
+        
+        # dict of interesting stuff
         self.events = {"finishingOrder":[], 
                        "finishingTurns":[], 
                        "kickingTurns":[], 
@@ -78,13 +89,21 @@ class Board():
             
 
     def currentPl(self):
+        """
+        Returns the current player (int)
+        """
         return self.plOrder[0]
         
     def nextPl(self):
+        """
+        Updates the player order (ready for the next turn).
+        """
         self.plOrder = self.plOrder[1:] + [self.plOrder[0]]
         
-    def state(self):
-        """Print the board positions of all pieces on the board"""
+    def printState(self):
+        """
+        Print the board positions of all pieces on the board as text.
+        """
         for i in self.fields.keys():
             #print(i)
             if self.fields[i]["piece"].player != 0:
@@ -93,8 +112,11 @@ class Board():
                       )
 
     def playersPieces(self, id, type=""):
-        """Return the board positions of all pieces of a specified player.
-        When type is specified, one can restict output to s, f, or g fields"""
+        """
+        Returns the board positions of all pieces of a specified player.
+        When `type` is specified, one can restict output to s, f, or g
+        fields.
+        """
         pos = []
         for i in [j for j in self.fields.keys() if j.startswith(type)]:
             if self.fields[i]["piece"].player == id:
@@ -102,32 +124,61 @@ class Board():
         return pos
 
     def movePiece(self, frto):
+        """
+        Low-level moving method. It swaps the pieces on the two fields
+        given in `frto`. This is not usually called directly. It does
+        not check wether a move is valid.
+        """
+        assert isinstance(frto, tuple), "Argument `frto` must be a tuple of lenght==2."
+        assert len(frto) == 2, "Argument `frto` must be a tuple of lenght==2."
+        
         fkey1, fkey2 = frto
         self.fields[fkey2]["piece"], self.fields[fkey1]["piece"] = self.fields[fkey1]["piece"], self.fields[fkey2]["piece"]
 
     def kickBackToWhere(self, player):
-        """Which of `player`'s starting (board) fields to kick back to"""
+        """
+        Which of `player`'s starting (board) fields to kick back to
+        """
         if len(self.playersPieces(player, "f")) == 0: raise ValueError("Cannot kick out player with 0 active pieces.")
         else: return "s%d%d" % (player, len(self.playersPieces(player, "s")) +1)
         
         
     def startFromWhere(self, player):
-        """From which of `player`'s starting (board) fields to move out"""
+        """
+        From which of `player`'s starting (board) fields to move out
+        """
         if len(self.playersPieces(player, "s")) == 0: raise ValueError("Cannot start, all pieces active.")
         else: return "s%d%d" % (player, len(self.playersPieces(player, "s")))
     
     def isPlayerOnField(self, bf, playerId):
+        """
+        Returns (logical) whether player `playeId` has a piece on board
+        field `bf`.
+        """
         return (self.fields[bf]["piece"].player == playerId)
     
     def isOtherPlayerOnField(self, bf, playerId):
+        """
+        Returns (logical) whether any player except `playeId` has a
+        piece on board field `bf`.
+        """
         others = [1, 2, 3, 4]
         others.pop(playerId - 1) 
         return (self.fields[bf]["piece"].player in others)
     
     def iNotOnStart(self, playerId):
+        """
+        Returns `True` player `playerId` has no piece on their start
+        field.
+        """
         return not self.isPlayerOnField(pf2bf(0, playerId), playerId)
 
     def kickOutFromBf(self, bf):
+        """
+        Kicks out a piece from a specified board field and records
+        relevant events. This is called by moveAndKick(), which deals
+        with the kicking piece's move.
+        """
         self.events["kickingTurns"].append(self.turn) 
         self.events["kickingWho"].append(self.currentPl())
         self.events["whoField"].append(bf2pf(bf, self.currentPl()))
@@ -139,12 +190,19 @@ class Board():
                        )
 
     def moveAndKick(self, frto):
+        """
+        Removes piece from target field and then moves focal piece.
+        """
         if frto[0] != -1:
             if self.isOtherPlayerOnField(frto[1], self.currentPl()):
                 self.kickOutFromBf(frto[1])
             self.movePiece(frto)
 
     def noGapsInGoal(self, pl):
+        """
+        Returns (logical) whether player `pl` has gaps between their
+        pieces in goal.
+        """
         myGoalPoss = self.playersPieces(self.currentPl(), "g")
         if len(myGoalPoss) == 0: return True
         myGoalPlPoss = bfl2pfl(myGoalPoss, self.currentPl())
@@ -155,10 +213,16 @@ class Board():
             return True
 
     def hasPlFinished(self, pl):
-
+        """
+        Returns (logical) whether all of player `pl`'s pieces are in
+        goal.
+        """
         return len(self.playersPieces(pl, "g")) == 4
 
     def finishProc(self, pl):
+        """
+        Procedure that is run once a player finishes.
+        """
         self.events["finishingOrder"].append(pl)
         self.events["finishingTurns"].append(self.turn)
         if not self.np:
@@ -167,8 +231,11 @@ class Board():
 
         
     def moveWhich(self, bfl, d, tak="k"):
-        """Take a list of board fields where the current player's pieces are and the number rolled.
-        Returns which board fields to move from and to."""
+        """
+        Takes a list of board fields where the current player's
+        pieces are and the number rolled. Returns which board fields to
+        move from and to.
+        """
         nonStartBFL = [i for i in bfl if not i.startswith("s")]
         if len(nonStartBFL) == 0:
             return -1, -1

@@ -1,4 +1,4 @@
-#The game
+#The script to run when package is run non-interactively
 
 from madn.top import oneGame
 if __name__ == "__main__":

@@ -1,10 +1,7 @@
 
 
-#from .game import *
+
 from madn.game import Board, initialisePlayerPieces
-#import madn.game
-#from .utils import *
-#from .plotting import * 
 from time import sleep, time
 import random
 
@@ -15,7 +12,7 @@ def oneGame(nPl=4, noPrint=True, tak=["k", "k", "k", "k"], seed=None):
     
     if seed != None: random.seed(seed)
     
-    [initialisePlayerPieces(i+1, board) for i in range(nPl)]
+    [initialisePlayerPieces(board, i+1) for i in range(nPl)]
     
     # The game main loop
     while True:
