@@ -4,13 +4,15 @@ from madn.utils import bf2pf, pf2bf, bfl2pfl
 from time import sleep
 from madn.plotting import clearScreen, printBoard
 
+
 def rollDie():
-    return randint(1,6)
+    return randint(1, 6)
+
 
 class Piece:
     """
     A class to represent pieces (including ghost pieces on empty fields)
-    
+
     Keyword args:
     playerId -- an integer
     playerPieceId -- an integer
@@ -24,41 +26,48 @@ class Piece:
         self.colour = colour
         self.bgcol = bgcol
 
+
 def makeGhostPiece():
-    """Returns white a piece object eloning to no player. These are located on empty fields."""
+    """Returns white a piece object eloning to no player. These are located on
+    empty fields.
+    """
     return Piece(0, 0, "white")
 
 
 def initialisePlayerPieces(board, playerId):
     """
-    Places a player's pieces in starting position by mutating `board`. This is run once for
-    each player. Used in oneGame().
+    Places a player's pieces in starting position by mutating `board`. This is
+    run once for each player. Used in oneGame().
     """
     assert isinstance(playerId, int), "Argument `playerId` must be `int`."
     assert isinstance(board, Board), "Argument `board ` must be `Board`."
     if playerId in [1, 2, 3, 4]:
         for i in [1, 2, 3, 4]:
-            board.fields["s%s%d" % (playerId, i)]["piece"] = Piece(playerId, i, board.playerColours[playerId-1])
-    else: raise ValueError("playerId must be between 1 and 4.")
+            board.fields["s%s%d" % (playerId, i)]["piece"] = Piece(
+               playerId, i, board.playerColours[playerId-1])
+    else:
+        raise ValueError("playerId must be between 1 and 4.")
 
 
 class Board():
     """
     The main class of the game.
-    """    
+    """
     def __init__(self, nPl=4, noPrint=False, tak=["k", "k", "k", "k"]):
         # set up fields
         # 40 ordinary fileds
-        self.fields = {("f%02d" % i):{"nextField":("f%02d" % (i+1)),
-                                      "fieldName":"board field %02d" % i,
-                                      "piece":makeGhostPiece()
-                                      } for i in range(40)}
-        #self.fields["f40"]={"nextField":"f01", "piece":makeGhostPiece(), "fieldName":"field 40"}
-    
+        self.fields = {("f%02d" % i): {
+            "nextField": ("f%02d" % (i+1)),
+            "fieldName": "board field %02d" % i,
+            "piece": makeGhostPiece()} for i in range(40)}
+        # self.fields["f40"]={"nextField":"f01", "piece":makeGhostPiece(), "fieldName": "field 40"}
+
         # 16 starting fields
         for i in range(4):
             for j in range(4):
-                self.fields["s%d%d" % (i+1,j+1)]={"piece":makeGhostPiece(), "fieldName":"starting field %d of player %d" % (j+1,i+1)}
+                self.fields["s%d%d" % (i+1, j+1)] = {
+                    "piece": makeGhostPiece(),
+                    "fieldName": "starting field %d of player %d" % (j+1, i+1)}
        
         # 16 goal fields
         for i in range(4):
